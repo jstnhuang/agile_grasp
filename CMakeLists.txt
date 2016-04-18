@@ -48,6 +48,7 @@ set(CMAKE_CXX_FLAGS "-DNDEBUG -O3 -fopenmp -Wno-deprecated -Wenum-compare")
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES CloudSized.msg Grasp.msg Grasps.msg)
+add_service_files(FILES FindGrasps.srv)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(DEPENDENCIES geometry_msgs sensor_msgs std_msgs)
