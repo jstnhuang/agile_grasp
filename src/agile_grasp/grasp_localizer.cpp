@@ -12,13 +12,8 @@ GraspLocalizer::GraspLocalizer(ros::NodeHandle& node,
       num_clouds_(params.num_clouds_),
       num_clouds_received_(0),
       size_left_(0) {
-  // subscribe to input point cloud ROS topic
-  if (cloud_type == CLOUD_SIZED)
-    cloud_sub_ = node.subscribe(cloud_topic, 1,
-                                &GraspLocalizer::cloud_sized_callback, this);
-  else if (cloud_type == POINT_CLOUD_2)
-    cloud_sub_ =
-        node.subscribe(cloud_topic, 1, &GraspLocalizer::cloud_callback, this);
+  cloud_sub_ =
+      node.subscribe(cloud_topic, 1, &GraspLocalizer::cloud_callback, this);
 
   // create ROS publisher for grasps
   grasps_pub_ = node.advertise<agile_grasp::Grasps>("grasps", 10);
@@ -66,20 +61,6 @@ void GraspLocalizer::cloud_callback(
   std::cout << "Received cloud # " << num_clouds_received_ << " with "
             << msg->height * msg->width << " points\n";
   num_clouds_received_++;
-}
-
-void GraspLocalizer::cloud_sized_callback(const agile_grasp::CloudSized& msg) {
-  // get point cloud from topic
-  if (cloud_frame_.compare(msg.cloud.header.frame_id) != 0) {
-    std::cout << "Input cloud frame " << msg.cloud.header.frame_id
-              << " is not equal to parameter " << cloud_frame_ << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-
-  pcl::fromROSMsg(msg.cloud, *cloud_left_);
-  size_left_ = msg.size_left.data;
-  std::cout << "Received cloud with size_left: " << size_left_ << std::endl;
-  num_clouds_received_ = 1;
 }
 
 void GraspLocalizer::localizeGrasps() {

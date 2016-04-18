@@ -131,13 +131,6 @@ class GraspLocalizer {
   void cloud_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
 
   /**
-         * \brief Callback function for the ROS topic that contains the input
-   * point cloud.
-         * \param msg the incoming ROS message (of type agile_grasp/CloudSized)
-        */
-  void cloud_sized_callback(const agile_grasp::CloudSized& msg);
-
-  /**
          * \brief Create a grasps message from a list of handles. The message
    * consists of all the grasps
          * contained in the handles.
@@ -189,7 +182,7 @@ class GraspLocalizer {
       antipodal_hands_;          ///< the antipodal grasps predicted by the SVM
   std::vector<Handle> handles_;  ///< the handles found by the handle search
   int num_clouds_received_;      ///< the number of point clouds that have been
-                                 ///received
+  /// received
   int num_clouds_;  ///< the maximum number of point clouds that can be received
   int size_left_;   ///< the size of the first point cloud
   int min_inliers_;     ///< the minimum number of inliers for the handle search
