@@ -2,6 +2,7 @@
 
 #include <agile_grasp/Grasp.h>
 #include <agile_grasp/grasp_localizer.h>
+#include <agile_grasp/FindGrasps.h>
 
 const std::string CLOUD_TOPIC = "input_cloud";
 const std::string CLOUD_FRAME = "camera_rgb_optical_frame";
@@ -100,7 +101,10 @@ int main(int argc, char** argv) {
 
   GraspLocalizer loc(node, cloud_topic, cloud_frame, cloud_type, svm_file_name,
                      params);
-  loc.localizeGrasps();
+  ros::ServiceServer server =
+      node.advertiseService("find_grasps", &GraspLocalizer::FindGrasps, &loc);
+  ros::spin();
+  // loc.localizeGrasps();
 
   return 0;
 }

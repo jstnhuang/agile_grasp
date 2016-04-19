@@ -1,4 +1,8 @@
 #include <agile_grasp/grasp_localizer.h>
+#include <agile_grasp/FindGrasps.h>
+#include "pcl_ros/transforms.h"
+#include "sensor_msgs/PointCloud2.h"
+#include "ros/ros.h"
 
 GraspLocalizer::GraspLocalizer(ros::NodeHandle& node,
                                const std::string& cloud_topic,
@@ -6,6 +10,8 @@ GraspLocalizer::GraspLocalizer(ros::NodeHandle& node,
                                const std::string& svm_file_name,
                                const Parameters& params)
     : cloud_left_(new PointCloud()),
+      cloud_pub_(node.advertise<sensor_msgs::PointCloud2>("grasp_cloud", 1)),
+      tf_listener_(),
       cloud_right_(new PointCloud()),
       cloud_frame_(cloud_frame),
       svm_file_name_(svm_file_name),
@@ -61,6 +67,27 @@ void GraspLocalizer::cloud_callback(
   std::cout << "Received cloud # " << num_clouds_received_ << " with "
             << msg->height * msg->width << " points\n";
   num_clouds_received_++;
+}
+
+bool GraspLocalizer::FindGrasps(agile_grasp::FindGrasps::Request& req,
+                                agile_grasp::FindGrasps::Response& res) {
+  cloud_pub_.publish(req.object);
+
+  std::vector<int> indices(0);
+  pcl::PointCloud<pcl::PointXYZ> msg;
+  pcl::fromROSMsg(req.object, msg);
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl_ros::transformPointCloud(cloud_frame_, msg, cloud, tf_listener_);
+  std::vector<GraspHypothesis> hands = localization_->localizeHands(
+      cloud.makeShared(), cloud.size(), indices, false, false);
+  std::vector<GraspHypothesis> antipodal_hands =
+      localization_->predictAntipodalHands(hands, svm_file_name_);
+  if (antipodal_hands.size() == 0) {
+    ROS_WARN("No grasps found.");
+  }
+  // Ignoring handle search for now until we tune parameters.
+  res.grasps = createGraspsMsg(antipodal_hands);
+  return true;
 }
 
 void GraspLocalizer::localizeGrasps() {

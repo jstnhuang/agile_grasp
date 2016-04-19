@@ -32,17 +32,16 @@
 #ifndef GRASP_LOCALIZER_H_
 #define GRASP_LOCALIZER_H_
 
+#include <vector>
+
+#include <Eigen/Dense>
 #include <eigen_conversions/eigen_msg.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-
-#include <Eigen/Dense>
-
-#include <vector>
+#include <tf/transform_listener.h>
 
 #include <agile_grasp/CloudSized.h>
 #include <agile_grasp/Grasp.h>
@@ -51,6 +50,7 @@
 #include <agile_grasp/handle.h>
 #include <agile_grasp/localization.h>
 #include <agile_grasp/rotating_hand.h>
+#include <agile_grasp/FindGrasps.h>
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
@@ -122,6 +122,9 @@ class GraspLocalizer {
   */
   void localizeGrasps();
 
+  bool FindGrasps(agile_grasp::FindGraspsRequest& req,
+                  agile_grasp::FindGraspsResponse& res);
+
  private:
   /**
    * \brief Callback function for the ROS topic that contains the input point
@@ -129,6 +132,7 @@ class GraspLocalizer {
    * \param msg the incoming ROS message (of type sensor_msgs/PointCloud2)
   */
   void cloud_callback(const sensor_msgs::PointCloud2ConstPtr& msg);
+  ros::Publisher cloud_pub_;
 
   /**
          * \brief Create a grasps message from a list of handles. The message
@@ -176,6 +180,7 @@ class GraspLocalizer {
   ros::Subscriber cloud_sub_;   ///< the subscriber for the point cloud topic
   ros::Publisher grasps_pub_;   ///< the publisher for the antipodal grasps
   Localization* localization_;  ///< a pointer to a localization object
+  tf::TransformListener tf_listener_;
   std::vector<GraspHypothesis>
       hands_;  ///< the grasp hypotheses found by the hand search
   std::vector<GraspHypothesis>

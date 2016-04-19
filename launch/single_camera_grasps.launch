@@ -1,5 +1,5 @@
 <launch>
-	<node name="find_grasps" pkg="agile_grasp" type="find_grasps" output="screen">
+	<node name="find_grasps" pkg="agile_grasp" type="find_grasps" output="screen" >
   	<param name="cloud_topic" value="/head_mount_kinect/depth_registered/points" />
     <param name="cloud_frame" value="/head_mount_kinect_rgb_optical_frame" />
     <param name="cloud_type" value="0" />
@@ -14,6 +14,6 @@
               0, 0, 0, 1] </rosparam>
     <param name="min_inliers" value="10" />
     <param name="plotting" value="2" />
-    <param name="marker_lifetime" value="5" />
+    <param name="marker_lifetime" value="60" />
 	</node>
 </launch>
